@@ -10,6 +10,16 @@
 
 #include <stddef.h>
 #include <stdint.h>
+
+#define   __I     volatile const       /*!< Defines 'read only' permissions */
+#define   __O     volatile             /*!< Defines 'write only' permissions */
+#define   __IO    volatile             /*!< Defines 'read / write' permissions */
+
+/* following defines should be used for structure members */
+#define     __IM     volatile const      /*! Defines 'read only' structure member permissions */
+#define     __OM     volatile            /*! Defines 'write only' structure member permissions */
+#define     __IOM    volatile            /*! Defines 'read / write' structure member permissions */
+
 #define _vo volatile
 #define __weak __attribute__((weak))
 
