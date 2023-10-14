@@ -8,6 +8,7 @@
 /*******************************************************************************
  * Includes
  ******************************************************************************/
+
 #include "stm32f446xx.h"
 
 #include "stm32f446xx_clock_driver.h"
@@ -15,7 +16,6 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-
 
 /*******************************************************************************
  * Gloabal variables
@@ -28,6 +28,7 @@
 /*******************************************************************************
  * Static Function Prototypes
  ******************************************************************************/
+static HAL_status_t CLOCK_SelectSource(Clock_SelectSource_t sourceClock);
 
 /*******************************************************************************
  * Global Funtions Prototypes
@@ -36,8 +37,37 @@
 /*******************************************************************************
  * Static Functions
  ******************************************************************************/
+static HAL_status_t CLOCK_SelectSource(Clock_SelectSource_t sourceClock)
+{
+    HAL_status_t retVal = E_OK;
+    uint8_t pll_enable = FALSE;
+    RCC->CR;
+    switch (sourceClock)
+    {
 
+    case CLOCK_PLL_HSI:
+        pll_enable = TRUE;
+    case CLOCK_HSI:
+        /* code */
+        break;
+
+    case CLOCK_PLL_HSE:
+        pll_enable = TRUE;
+    case CLOCK_HSE:
+        /* code */
+        break;
+
+    default:
+        retVal = E_INVALID_PARAMETER;
+        break;
+    }
+
+    if ((TRUE == pll_enable) && (E_OK == retVal))
+    {
+    }
+
+    return retVal;
+}
 /*******************************************************************************
  * Global Funtions
  ******************************************************************************/
-

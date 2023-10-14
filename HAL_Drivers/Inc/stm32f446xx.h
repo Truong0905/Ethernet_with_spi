@@ -11,6 +11,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
+
+/*******************************************USER-CASES***************************************************************/
+
+#define TRUE 1u
+
+#define FALSE 0u
+
+#define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
+
 #define   __I     volatile const       /*!< Defines 'read only' permissions */
 #define   __O     volatile             /*!< Defines 'write only' permissions */
 #define   __IO    volatile             /*!< Defines 'read / write' permissions */
@@ -22,6 +31,12 @@
 
 #define _vo volatile
 #define __weak __attribute__((weak))
+
+typedef enum
+{
+	E_OK = 0u,
+	E_INVALID_PARAMETER = 1u,
+}HAL_status_t;
 
 /***********************************************************START : processor specific detail *********************************************************************/
 /**
