@@ -43,7 +43,7 @@
  * 0: HSE oscillator OFF
  * 1: HSE oscillator ON
 **/
-#define RCC_CR_HSIRDY(x)  (((uint32_t)(((uint32_t)x)<< RCC_CR_HSEON_SHIFT)) & RCC_CR_HSION_MASK)
+#define RCC_CR_HSEON(x)  (((uint32_t)(((uint32_t)x)<< RCC_CR_HSEON_SHIFT)) & RCC_CR_HSION_MASK)
 
 
 /**************/

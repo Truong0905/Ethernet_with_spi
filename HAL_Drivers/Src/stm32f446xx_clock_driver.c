@@ -41,20 +41,44 @@ static HAL_status_t CLOCK_SelectSource(Clock_SelectSource_t sourceClock)
 {
     HAL_status_t retVal = E_OK;
     uint8_t pll_enable = FALSE;
-    RCC->CR;
+
     switch (sourceClock)
     {
 
     case CLOCK_PLL_HSI:
         pll_enable = TRUE;
     case CLOCK_HSI:
-        /* code */
+        {
+            if ((RCC->CR & RCC_CR_HSIRDY_MASK) == 0)
+            {
+                if (RCC->CR & RCC_CR_HSERDY_MASK != 0)
+                {
+                    RCC->CR &= ~RCC_CR_HSEON(0);
+
+                    while (RCC->CR & RCC_CR_HSERDY_MASK != 0);
+                }
+
+                RCC->CR |= RCC_CR_HSION(1);
+            }
+        }
         break;
 
     case CLOCK_PLL_HSE:
         pll_enable = TRUE;
     case CLOCK_HSE:
-        /* code */
+        {
+            if ((RCC->CR & RCC_CR_HSERDY_MASK) == 0)
+            {
+                if (RCC->CR & RCC_CR_HSIRDY_MASK != 0)
+                {
+                    RCC->CR &= ~RCC_CR_HSION(0);
+
+                    while (RCC->CR & RCC_CR_HSIRDY_MASK != 0);
+                }
+
+                RCC->CR |= RCC_CR_HSEON(1);
+            }
+        }
         break;
 
     default:
