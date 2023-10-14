@@ -32,11 +32,28 @@
 #define _vo volatile
 #define __weak __attribute__((weak))
 
+#define SET_BIT(REG, BIT)     ((REG) |= (BIT))
+
+#define CLEAR_BIT(REG, BIT)   ((REG) &= ~(BIT))
+
+#define READ_BIT(REG, BIT)    ((REG) & (BIT))
+
+#define CLEAR_REG(REG)        ((REG) = (0x0))
+
+#define WRITE_REG(REG, VAL)   ((REG) = (VAL))
+
+#define READ_REG(REG)         ((REG))
+
+#define MODIFY_REG(REG, CLEARMASK, SETMASK)  WRITE_REG((REG), (((READ_REG(REG)) & (~(CLEARMASK))) | (SETMASK)))
+
 typedef enum
 {
 	E_OK = 0u,
 	E_INVALID_PARAMETER = 1u,
-}HAL_status_t;
+	E_TIMEOUT = 2u,
+}LT_status_t;
+
+/*************************************END*************************************************************************/
 
 /***********************************************************START : processor specific detail *********************************************************************/
 /**
