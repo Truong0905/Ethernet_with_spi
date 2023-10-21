@@ -10,7 +10,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-
+#include <stdbool.h>
 
 /*******************************************USER-CASES***************************************************************/
 
@@ -51,6 +51,8 @@ typedef enum
 	E_OK = 0u,
 	E_INVALID_PARAMETER = 1u,
 	E_TIMEOUT = 2u,
+	E_OUT_OF_RANGE = 3U,
+	E_NOT_FOUND = 4u,
 }LT_status_t;
 
 /*************************************END*************************************************************************/

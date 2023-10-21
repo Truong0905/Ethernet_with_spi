@@ -16,11 +16,22 @@
  ******************************************************************************
  */
 
-#include <stdint.h>
+#include "stm32f446xx.h"
 
+#include "stm32f446xx_clock_driver.h"
 
 int main(void)
 {
+    Clock_SelectSource_type cfg;
+    LT_status_t status = E_OK;
+
+    cfg.Source = CLOCK_HSE;
+    cfg.HSE_state = CLOCK_HSE_ON;
+    cfg.PLL_state = CLOCK_PLL_ON;
+    cfg.SystemClock = RCC_SELECT_SystemClock_72_MHZ;
+
+   status =  CLOCK_SourceCfg(&cfg);
+
     /* Loop forever */
 	for(;;);
 }
