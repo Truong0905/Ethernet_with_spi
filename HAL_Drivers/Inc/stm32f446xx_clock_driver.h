@@ -25,23 +25,23 @@
 
 /********* RCC clock control register (RCC_CR)***********************/
 
-#define RCC_CR_HSION_MASK  (1u)
+#define RCC_CR_HSION_MASK  (0x00000001)
 #define RCC_CR_HSION_SHIFT  (0u)
 /*! HSION: Internal high-speed clock enable
  * 0: HSI oscillator OFF
  * 1: HSI oscillator ON
 **/
-#define RCC_CR_HSION(x)  (((uint32_t)(((uint32_t)x)<< RCC_CR_HSION_SHIFT)) & RCC_CR_HSION_MASK)
+#define RCC_CR_HSION(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CR_HSION_SHIFT)) & RCC_CR_HSION_MASK)
 
 /**************/
 
-#define RCC_CR_HSIRDY_MASK  (2u)
+#define RCC_CR_HSIRDY_MASK  (0x00000002)
 #define RCC_CR_HSIRDY_SHIFT  (1u)
 /*! HSIRDY: Internal high-speed clock ready flag
  * 0: HSI oscillator not ready
  * 1: HSI oscillator ready
 **/
-#define RCC_CR_HSIRDY(x)  (((uint32_t)(((uint32_t)x)<< RCC_CR_HSIRDY_SHIFT)) & RCC_CR_HSIRDY_MASK)
+#define RCC_CR_HSIRDY(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CR_HSIRDY_SHIFT)) & RCC_CR_HSIRDY_MASK)
 
 
 /**************/
@@ -52,7 +52,7 @@
  * 0: HSE oscillator OFF
  * 1: HSE oscillator ON
 **/
-#define RCC_CR_HSEON(x)  (((uint32_t)(((uint32_t)x)<< RCC_CR_HSEON_SHIFT)) & RCC_CR_HSION_MASK)
+#define RCC_CR_HSEON(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CR_HSEON_SHIFT)) & RCC_CR_HSION_MASK)
 
 
 /**************/
@@ -63,7 +63,7 @@
  * 0: HSE oscillator not ready
  * 1: HSE oscillator ready
 **/
-#define RCC_CR_HSERDY(x)  (((uint32_t)(((uint32_t)x)<< RCC_CR_HSERDY_SHIFT)) & RCC_CR_HSERDY_MASK)
+#define RCC_CR_HSERDY(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CR_HSERDY_SHIFT)) & RCC_CR_HSERDY_MASK)
 
 /**************/
 
@@ -73,7 +73,7 @@
  * 0:  PLL OFF
  * 1:  PLL ON
 **/
-#define RCC_CR_PLLON(x)  (((uint32_t)(((uint32_t)x)<< RCC_CR_PLLON_SHIFT)) & RCC_CR_PLLON_MASK)
+#define RCC_CR_PLLON(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CR_PLLON_SHIFT)) & RCC_CR_PLLON_MASK)
 
 /**************/
 
@@ -92,7 +92,7 @@
  * 0:  : PLLI2S OFF
  * 1:  : PLLI2S ON
 **/
-#define RCC_CR_PLLI2SON(x)  (((uint32_t)(((uint32_t)x)<< RCC_CR_PLLI2SON_SHIFT)) & RCC_CR_PLLI2SON_MASK)
+#define RCC_CR_PLLI2SON(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CR_PLLI2SON_SHIFT)) & RCC_CR_PLLI2SON_MASK)
 
 /**************/
 
@@ -114,7 +114,7 @@ Cleared by hardware when entering Stop or Standby mode.
 0: PLLSAI OFF
 1: PLLSAI ON
 **/
-#define RCC_CR_PLLSAION(x)  (((uint32_t)(((uint32_t)x)<< RCC_CR_PLLSAION_SHIFT)) & RCC_CR_PLLSAION_MASK)
+#define RCC_CR_PLLSAION(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CR_PLLSAION_SHIFT)) & RCC_CR_PLLSAION_MASK)
 
 /**************/
 
@@ -138,12 +138,12 @@ Set by hardware to indicate that the PLLSAI is locked.
     0: HSI clock selected as PLL and PLLI2S clock entry
     1: HSE oscillator clock selected as PLL and PLLI2S clock entry
 **/
-#define RCC_PLLCFGR_LLSRC(x)  (((uint32_t)(((uint32_t)x)<< RCC_PLLCFGR_LLSRC_SHIFT)) & RCC_PLLCFGR_LLSRC_MASK)
+#define RCC_PLLCFGR_LLSRC(x)  (((uint32_t)(((uint32_t)(x))<< RCC_PLLCFGR_LLSRC_SHIFT)) & RCC_PLLCFGR_LLSRC_MASK)
 
 #define RCC_PLLCFGR_PLLSRC_HSE RCC_PLLCFGR_LLSRC_MASK
 #define RCC_PLLCFGR_PLLSRC_HSI (0u)
 
-#define RCC_PLLCFGR_PLLM_MASK  (0x3F)
+#define RCC_PLLCFGR_PLLM_MASK  (0x0000003F)
 #define RCC_PLLCFGR_PLLM_SHIFT  (0u)
 /*!  PLLM[5:0]: Division factor for the main PLL (PLL) input clock
     Caution: The software has to set these bits correctly to ensure that the VCO input frequency
@@ -159,11 +159,11 @@ Set by hardware to indicate that the PLLSAI is locked.
     111110: PLLM = 62
     111111: PLLM = 63
 **/
-#define RCC_PLLCFGR_PLLM(x)  (((uint32_t)(((uint32_t)x)<< RCC_PLLCFGR_PLLM_SHIFT)) & RCC_PLLCFGR_PLLM_MASK)
+#define RCC_PLLCFGR_PLLM(x)  (((uint32_t)(((uint32_t)(x))<< RCC_PLLCFGR_PLLM_SHIFT)) & RCC_PLLCFGR_PLLM_MASK)
 
 /**************/
 
-#define RCC_PLLCFGR_PLLN_MASK  (0x7FC0)
+#define RCC_PLLCFGR_PLLN_MASK  (0x00007FC0)
 #define RCC_PLLCFGR_PLLN_SHIFT  (6u)
 /*!  PLLN[8:0]: Main PLL (PLL) multiplication factor for VCO
     Set and cleared by software to control the multiplication factor of the VCO. These bits can
@@ -183,7 +183,7 @@ Set by hardware to indicate that the PLLSAI is locked.
     110110001: PLLN = 433, wrong configuration ...
     111111111: PLLN = 511, wrong configuration
 **/
-#define RCC_PLLCFGR_PLLN(x)  (((uint32_t)(((uint32_t)x)<< RCC_PLLCFGR_PLLN_SHIFT)) & RCC_PLLCFGR_PLLN_MASK)
+#define RCC_PLLCFGR_PLLN(x)  (((uint32_t)(((uint32_t)(x))<< RCC_PLLCFGR_PLLN_SHIFT)) & RCC_PLLCFGR_PLLN_MASK)
 
 /**************/
 
@@ -199,7 +199,7 @@ PLL output clock frequency = VCO frequency / PLLP with PLLP = 2, 4, 6, or 8
 10: PLLP = 6
 11: PLLP = 8
 **/
-#define RCC_PLLCFGR_PLLP(x)  (((uint32_t)(((uint32_t)x)<< RCC_PLLCFGR_PLLP_SHIFT)) & RCC_PLLCFGR_PLLP_MASK)
+#define RCC_PLLCFGR_PLLP(x)  (((uint32_t)(((uint32_t)(x))<< RCC_PLLCFGR_PLLP_SHIFT)) & RCC_PLLCFGR_PLLP_MASK)
 
 /**************/
 
@@ -219,7 +219,7 @@ PLL output clock frequency = VCO frequency / PLLP with PLLP = 2, 4, 6, or 8
     ...
     1111: PLLQ = 15
 **/
-#define RCC_PLLCFGR_PLLQ(x)  (((uint32_t)(((uint32_t)x)<< RCC_PLLCFGR_PLLQ_SHIFT)) & RCC_PLLCFGR_PLLQ_MASK)
+#define RCC_PLLCFGR_PLLQ(x)  (((uint32_t)(((uint32_t)(x))<< RCC_PLLCFGR_PLLQ_SHIFT)) & RCC_PLLCFGR_PLLQ_MASK)
 
 /**************/
 
@@ -236,11 +236,32 @@ PLL output clock frequency = VCO frequency / PLLP with PLLP = 2, 4, 6, or 8
     ...
     111: PLLR = 7
 **/
-#define RCC_PLLCFGR_PLLR(x)  (((uint32_t)(((uint32_t)x)<< RCC_PLLCFGR_PLLR_SHIFT)) & RCC_PLLCFGR_PLLR_MASK)
+#define RCC_PLLCFGR_PLLR(x)  (((uint32_t)(((uint32_t)(x))<< RCC_PLLCFGR_PLLR_SHIFT)) & RCC_PLLCFGR_PLLR_MASK)
 
 /********* RCC clock configuration register (RCC_CFGR)***********************/
 
-#define RCC_CFGR_SWS_MASK  (0x0C)
+#define RCC_CFGR_SW_MASK  (0x00000003)
+#define RCC_CFGR_SW_SHIFT  (0u)
+/*!   SW[1:0]: System clock switch
+    Set and cleared by software to select the system clock source.
+    Set by hardware to force the HSI selection when leaving the Stop or Standby mode or in
+    case of failure of the HSE oscillator used directly or indirectly as the system clock.
+    00: HSI oscillator selected as system clock
+    01: HSE oscillator selected as system clock
+    10: PLL_P selected as system clock
+    11: PLL_R selected as system clock
+**/
+#define RCC_CFGR_SW(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CFGR_SW_SHIFT)) & RCC_CFGR_SW_MASK)
+
+#define RCC_CFGR_SW_HSI                     0x00000000U                         /*!< HSI oscillator selected as system clock */
+#define RCC_CFGR_SW_HSE                     0x00000001U                         /*!<  HSE oscillator selected as system clock */
+#define RCC_CFGR_SW_PLL_P                   0x00000002U                         /*!< PLL_P selected as system clock */
+#define RCC_CFGR_SW_PLL_R                   0x00000003U                         /*!< PLL_R selected as system clock */
+
+/**************/
+
+
+#define RCC_CFGR_SWS_MASK  (0x0000000C)
 #define RCC_CFGR_SWS_SHIFT  (2u)
 /*!  SWS[1:0]: System clock switch status
     Set and cleared by hardware to indicate which clock source is used as the system clock.
@@ -249,7 +270,7 @@ PLL output clock frequency = VCO frequency / PLLP with PLLP = 2, 4, 6, or 8
     10: PLL used as the system clock
     11: PLL_R used as the system clock
 **/
-#define RCC_CFGR_SWS(x)  (((uint32_t)(((uint32_t)x)<< RCC_CFGR_SWS_SHIFT)) & RCC_CFGR_SWS_MASK)
+#define RCC_CFGR_SWS(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CFGR_SWS_SHIFT)) & RCC_CFGR_SWS_MASK)
 
 #define RCC_CFGR_SWS_HSI                   0x00000000U                         /*!< HSI oscillator used as system clock */
 #define RCC_CFGR_SWS_HSE                   0x00000004U                         /*!< HSE oscillator used as system clock */
@@ -257,13 +278,71 @@ PLL output clock frequency = VCO frequency / PLLP with PLLP = 2, 4, 6, or 8
 
 /**************/
 
+#define RCC_CFGR_HPRE_MASK  (0x000000F0)
+#define RCC_CFGR_HPRE_SHIFT  (4u)
+/*! Bits 7:4 HPRE: AHB prescaler
+    Set and cleared by software to control AHB clock division factor.
+    Caution: The clocks are divided with the new prescaler factor from 1 to 16 AHB cycles after
+    HPRE write.
+    Caution: The AHB clock frequency must be at least 25 MHz when the Ethernet is used.
+    0xxx: system clock not divided
+    1000: system clock divided by 2
+    1001: system clock divided by 4
+    1010: system clock divided by 8
+    1011: system clock divided by 16
+    1100: system clock divided by 64
+    1101: system clock divided by 128
+    1110: system clock divided by 256
+    1111: system clock divided by 512
+**/
+#define RCC_CFGR_HPRE(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CFGR_HPRE_SHIFT)) & RCC_CFGR_HPRE_MASK)
 
+/**************/
+
+#define RCC_CFGR_PPRE1_MASK  (0x00001C00)
+#define RCC_CFGR_PPRE1_SHIFT  (10u)
+/*! Bits 12:10 PPRE1: APB Low speed prescaler (APB1)
+    Set and cleared by software to control APB low-speed clock division factor.
+    Caution: The software has to set these bits correctly not to exceed 45 MHz on this domain.
+    The clocks are divided with the new prescaler factor from 1 to 16 AHB cycles after
+    PPRE1 write.
+    0xx: AHB clock not divided
+    100: AHB clock divided by 2
+    101: AHB clock divided by 4
+    110: AHB clock divided by 8
+    111: AHB clock divided by 16
+**/
+#define RCC_CFGR_PPRE1(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CFGR_PPRE1_SHIFT)) & RCC_CFGR_PPRE1_MASK)
+
+#define RCC_CFGR_PPRE1_DIV1                0x00000000U                         /*!< HCLK not divided   */
+#define RCC_CFGR_PPRE1_DIV2                0x00001000U                         /*!< HCLK divided by 2  */
+#define RCC_CFGR_PPRE1_DIV4                0x00001400U                         /*!< HCLK divided by 4  */
+#define RCC_CFGR_PPRE1_DIV8                0x00001800U                         /*!< HCLK divided by 8  */
+#define RCC_CFGR_PPRE1_DIV16               0x00001C00U                         /*!< HCLK divided by 16 */
+
+/**************/
+
+
+#define RCC_CFGR_PPRE2_MASK  (0x0000E000)
+#define RCC_CFGR_PPRE2_SHIFT  (13u)
+/*! Bits 15:13 PPRE2: APB high-speed prescaler (APB2)
+    Set and cleared by software to control APB high-speed clock division factor.
+    Caution: The software has to set these bits correctly not to exceed 90 MHz on this domain.
+    The clocks are divided with the new prescaler factor from 1 to 16 AHB cycles after
+    PPRE2 write.
+    0xx: AHB clock not divided
+    100: AHB clock divided by 2
+    101: AHB clock divided by 4
+    110: AHB clock divided by 8
+    111: AHB clock divided by 16
+**/
+#define RCC_CFGR_PPRE2(x)  (((uint32_t)(((uint32_t)(x))<< RCC_CFGR_PPRE2_SHIFT)) & RCC_CFGR_PPRE2_MASK)
+
+/**************/
 
  /********************************** END  ********************************************/
 
  /********************************** GET STATUS  ********************************************/
-
-#define RCC_GET_SYSCLK_SOURCE (RCC->CFGR & RCC_CFGR_SWS_MASK)
 
 #define RCC_GET_SYSCLK_SOURCE (RCC->CFGR & RCC_CFGR_SWS_MASK)
 
@@ -292,6 +371,12 @@ RCC_PLLP_DIV8, \
     (((__PLLP) << RCC_PLLCFGR_PLLP_SHIFT) & RCC_PLLCFGR_PLLP_MASK ) |   \
     (((__PLLQ) << RCC_PLLCFGR_PLLQ_SHIFT) & RCC_PLLCFGR_PLLQ_MASK ) |   \
     (((__PLLR) << RCC_PLLCFGR_PLLR_SHIFT) & RCC_PLLCFGR_PLLR_MASK )
+
+
+#define RCC_HCLK_DIV2  RCC_CFGR_PPRE1_DIV2
+#define RCC_HCLK_DIV4  RCC_CFGR_PPRE1_DIV4
+#define RCC_HCLK_DIV8  RCC_CFGR_PPRE1_DIV8
+#define RCC_HCLK_DIV16 RCC_CFGR_PPRE1_DIV16
 
 /*******************************************************************************
  * Struct, enum, union
@@ -344,7 +429,32 @@ typedef enum
     RCC_SELECT_SystemClock_180_MHZ = 180u,
     RCC_SELECT_SystemClock_48_MHZ = 48u,
     RCC_SELECT_SystemClock_72_MHZ = 72u,
+    RCC_SELECT_SystemClock_16_MHZ = 16u,
+    RCC_SELECT_SystemClock_8_MHZ = 8u,
 }Clock_Set_SystemClock_t;
+
+
+typedef enum
+{
+    Sys_HSE_DIV1    =        0xff,
+    Sys_HSE_DIV2    =        0u,
+    Sys_HSE_DIV4    =        1U,
+    Sys_HSE_DIV8    =        2U,
+    Sys_HSE_DIV16   =        3U,
+    Sys_HSE_DIV64   =        4U,
+    Sys_HSE_DIV128  =        5U,
+    Sys_HSE_DIV256  =        6U,
+    Sys_HSE_DIV512  =        7U,
+}CLOCK_Sys_HSE_div_t;
+
+typedef enum
+{
+    PPRE_DIV1  = 0xff,                         /*!< HCLK divided by 2  */
+    PPRE_DIV2  = 0u,                         /*!< HCLK divided by 2  */
+    PPRE_DIV4  = 1u,                         /*!< HCLK divided by 4  */
+    PPRE_DIV8  = 2u,                         /*!< HCLK divided by 8  */
+    PPRE_DIV16 = 3u,                         /*!< HCLK divided by 16 */
+}CLOCK_HSE_APB_div_t;
 
 typedef struct
 {
@@ -357,6 +467,14 @@ typedef struct
     Clock_HSE_State_t HSE_state;
 }Clock_SelectSource_type;
 
+
+
+typedef struct
+{
+    CLOCK_Sys_HSE_div_t AHBCLKDivider;
+    CLOCK_HSE_APB_div_t APB1CLKDivider;
+    CLOCK_HSE_APB_div_t APB2CLKDivider;
+}CLOCK_Setting_type;
 /*******************************************************************************
  * Gloabal variables
  ******************************************************************************/
@@ -372,7 +490,9 @@ typedef struct
 /*******************************************************************************
  * Global Funtions Prototypes
  ******************************************************************************/
-LT_status_t CLOCK_SourceCfg(Clock_SelectSource_type *sourceClock);
+LT_status_t CLOCK_SourceSelectionCfg(const Clock_SelectSource_type * const sourceClock);
+
+LT_status_t CLOCK_SettingClock(const CLOCK_Setting_type * const pClockSetting);
 
 /*******************************************************************************
  * Static Functions

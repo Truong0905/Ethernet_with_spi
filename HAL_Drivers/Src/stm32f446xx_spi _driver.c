@@ -465,4 +465,11 @@ void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx)
      (void)temp;
 }
 
-__weak void SPI_ApplicationCallback(SPI_Handle_t *pSPIhandle, uint8_t AppEv);
+__weak void SPI_ApplicationCallback(SPI_Handle_t *pSPIhandle, uint8_t AppEv)
+{
+     while (1)
+     {
+          /* code */
+     }
+
+}

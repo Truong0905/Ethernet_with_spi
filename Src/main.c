@@ -20,9 +20,25 @@
 
 #include "stm32f446xx_clock_driver.h"
 
+static LT_status_t InitClockSource(void);
+
 int main(void)
 {
+
+    volatile  LT_status_t status = E_OK;
+
+    status = InitClockSource();
+    /* Loop forever */
+	for(;;);
+}
+
+
+
+
+static LT_status_t InitClockSource(void)
+{
     Clock_SelectSource_type cfg;
+    CLOCK_Setting_type clockSetting;
     LT_status_t status = E_OK;
 
     cfg.Source = CLOCK_HSE;
@@ -30,8 +46,15 @@ int main(void)
     cfg.PLL_state = CLOCK_PLL_ON;
     cfg.SystemClock = RCC_SELECT_SystemClock_72_MHZ;
 
-   status =  CLOCK_SourceCfg(&cfg);
+    clockSetting.AHBCLKDivider = Sys_HSE_DIV1;
+    clockSetting.APB1CLKDivider = PPRE_DIV2;
+    clockSetting.APB2CLKDivider = PPRE_DIV2;
 
-    /* Loop forever */
-	for(;;);
+   status =  CLOCK_SourceSelectionCfg(&cfg);
+    if (E_OK == status)
+    {
+       status = CLOCK_SettingClock( &clockSetting);
+    }
+
+    return status;
 }
