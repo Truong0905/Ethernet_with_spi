@@ -97,7 +97,7 @@ static LT_status_t InitSPI(void)
     LT_status_t retVal = E_OK;
 
     xSPI.pSPIx = SPI1;
-    xSPI.SPI_Config.SPI_DeviceMode = SPI_MASRER_MODE;
+    xSPI.SPI_Config.SPI_DeviceMode = SPI_MASTER_MODE;
     xSPI.SPI_Config.SPI_BusConfig = SPI_Full_Duplex_MODE;
     xSPI.SPI_Config.SPI_FirstBit = SPI_FIRSTBIT_MSB;
     xSPI.SPI_Config.SPI_CPHA = SPI_CPHA_LOW;
