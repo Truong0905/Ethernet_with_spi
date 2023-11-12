@@ -18,18 +18,51 @@
 
 #include "stm32f446xx.h"
 
+#include "stm32f446xx_gpio_driver.h"
+
 #include "stm32f446xx_clock_driver.h"
 
+#include "stm32f446xx_spi_driver.h"
+
+static SPI_Handle_t xSPI;
+
+
 static LT_status_t InitClockSource(void);
+
+static LT_status_t InitSPI(void);
+
+static void InitGPIO(void);
+
+void delay (void)
+{
+    for (uint32_t i = 0; i < 10000000; i ++);
+}
 
 int main(void)
 {
 
     volatile  LT_status_t status = E_OK;
+    uint32_t len = 6;
+    uint8_t data[] = "Hello";
 
     status = InitClockSource();
+
+    (void) InitGPIO();
+
+    status = InitSPI();
     /* Loop forever */
-	for(;;);
+	while (1)
+    {
+         delay();
+
+         SPI_SSIControlBit(xSPI.pSPIx, DISABLE);
+
+         status = SPI_SendData(xSPI.pSPIx, data,  len);
+
+         SPI_SSIControlBit(xSPI.pSPIx, ENABLE);
+
+    }
+
 }
 
 
@@ -48,7 +81,7 @@ static LT_status_t InitClockSource(void)
 
     clockSetting.AHBCLKDivider = Sys_HSE_DIV1;
     clockSetting.APB1CLKDivider = PPRE_DIV2;
-    clockSetting.APB2CLKDivider = PPRE_DIV2;
+    clockSetting.APB2CLKDivider = PPRE_DIV4;
 
    status =  CLOCK_SourceSelectionCfg(&cfg);
     if (E_OK == status)
@@ -57,4 +90,64 @@ static LT_status_t InitClockSource(void)
     }
 
     return status;
+}
+
+static LT_status_t InitSPI(void)
+{
+    LT_status_t retVal = E_OK;
+
+    xSPI.pSPIx = SPI1;
+    xSPI.SPI_Config.SPI_DeviceMode = SPI_MASRER_MODE;
+    xSPI.SPI_Config.SPI_BusConfig = SPI_Full_Duplex_MODE;
+    xSPI.SPI_Config.SPI_FirstBit = SPI_FIRSTBIT_MSB;
+    xSPI.SPI_Config.SPI_CPHA = SPI_CPHA_LOW;
+    xSPI.SPI_Config.SPI_CPOL = SPI_CPOL_LOW;
+    xSPI.SPI_Config.SPI_DataSize = SPI_DS_8BITS;
+    xSPI.SPI_Config.SPI_SclkSpeed = SPI_DIV_2;
+
+    retVal = SPI_Init(&xSPI);
+
+    return retVal;
+}
+
+static void InitGPIO(void)
+{
+    GPIO_Handle_t GPIO_miso;
+    GPIO_Handle_t GPIO_mosi;
+    GPIO_Handle_t GPIO_sclk;
+    GPIO_Handle_t GPIO_nss;
+
+    GPIO_sclk.pGPIOx = GPIOB;
+    GPIO_sclk.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_3;
+    GPIO_sclk.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
+    GPIO_sclk.GPIO_PinConfig.GPIO_PinSpeed = GPIO_OP_SPEED_HIGH;
+    GPIO_sclk.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUD ;
+    GPIO_sclk.GPIO_PinConfig.GPIO_PinAltFunMode = 0x0101 ;
+
+
+    GPIO_miso.pGPIOx = GPIOB;
+    GPIO_miso.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_4;
+    GPIO_miso.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
+    GPIO_miso.GPIO_PinConfig.GPIO_PinSpeed = GPIO_OP_SPEED_HIGH;
+    GPIO_miso.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUD ;
+    GPIO_miso.GPIO_PinConfig.GPIO_PinAltFunMode = 0x0101 ;
+
+    GPIO_mosi.pGPIOx = GPIOB;
+    GPIO_mosi.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_5;
+    GPIO_mosi.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
+    GPIO_mosi.GPIO_PinConfig.GPIO_PinSpeed = GPIO_OP_SPEED_HIGH;
+    GPIO_mosi.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUD ;
+    GPIO_mosi.GPIO_PinConfig.GPIO_PinAltFunMode = 0x0101 ;
+
+    GPIO_nss.pGPIOx = GPIOA;
+    GPIO_nss.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_15;
+    GPIO_nss.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
+    GPIO_nss.GPIO_PinConfig.GPIO_PinSpeed = GPIO_OP_SPEED_HIGH;
+    GPIO_nss.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUD ;
+    GPIO_nss.GPIO_PinConfig.GPIO_PinAltFunMode = 0x0101 ;
+
+    GPIO_Init(&GPIO_sclk);
+    GPIO_Init(&GPIO_miso);
+    GPIO_Init(&GPIO_mosi);
+    GPIO_Init(&GPIO_nss);
 }
