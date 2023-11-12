@@ -350,6 +350,11 @@ LT_status_t SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t len)
      LT_status_t retVal = E_OK;
      uint8_t check = 1;
 
+     if (READ_BIT(pSPIx->CR1,SPI_CR1_SPE_MASK))
+     {
+          (void) SPI_PeripheralControl(pSPIx, ENABLE);
+     }
+
      while ((len > 0) && (1 == check))
      {
           // 1. Đợi cho tới khi cờ TXE = 1 có nghĩa là Tx buffer đã trống
