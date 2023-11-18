@@ -26,7 +26,6 @@
 // static void spi_rxne_interrupt_handle(SPI_Handle_t *pSPIhandle);
 // static void spi_ovr_err_interrupt_handle(SPI_Handle_t *pSPIhandle);
 static void SPI_PeriClockControl(SPI_RegDef_t *pSPIx, uint8_t EnorDi);
-static LT_status_t SPI_Configuration(SPI_RegDef_t *pSPIx, SPI_Config_type * pSPI_Config);
 
 /*******************************************************************************
  * Global Funtions Prototypes
@@ -78,108 +77,6 @@ static void SPI_PeriClockControl(SPI_RegDef_t *pSPIx, uint8_t EnorDi)
      }
 }
 
-static LT_status_t SPI_Configuration(SPI_RegDef_t *pSPIx, SPI_Config_type * pSPI_Config)
-{
-
-     SPI_PeriClockControl(pSPIx, ENABLE);
-
-     /* 1. Select mode */
-     switch (pSPI_Config->SPI_DeviceMode)
-     {
-     case SPI_SLAVE_MODE:
-          CLEAR_BIT(pSPIx->CR1,SPI_CR1_MSTR_MASK);
-          break;
-     case SPI_MASTER_MODE:
-          SET_BIT(pSPIx->CR1,SPI_CR1_MSTR_MASK);
-          break;
-     default:
-          return E_INVALID_PARAMETER;
-     }
-
-     /* 2. transmission mode*/
-     switch (pSPI_Config->SPI_BusConfig)
-     {
-          case SPI_Full_Duplex_MODE:
-          case SPI_Simplex_Tx_MODE:
-               CLEAR_BIT(pSPIx->CR1,SPI_CR1_BIDIMODE_MASK);
-               break;
-          case SPI_Simplex_Rx_MODE:
-               SET_BIT(pSPIx->CR1,SPI_CR1_RXONLY_MASK);
-               break;
-          default:
-               return E_INVALID_PARAMETER;
-     }
-     s_SPI_Config.SPI_BusConfig =pSPI_Config->SPI_BusConfig;
-
-
-
-     /* 3. Baud rate control */
-     MODIFY_REG(pSPIx->CR1,SPI_CR1_BR_MASK, (0x07 & pSPI_Config->SPI_SclkSpeed));
-
-     /* 4. SPI_CPOL */
-     switch (pSPI_Config->SPI_CPOL)
-     {
-     case SPI_CPOL_LOW:
-          CLEAR_BIT(pSPIx->CR1,SPI_CR1_CPOL_MASK);
-          break;
-     case SPI_CPOL_HIGH:
-          SET_BIT(pSPIx->CR1,SPI_CR1_CPOL_MASK);
-          break;
-     default:
-          return E_INVALID_PARAMETER;
-          break;
-     }
-
-     /* 5. SPI_CPHA */
-     switch (pSPI_Config->SPI_CPHA)
-     {
-     case SPI_CPHA_LOW:
-          CLEAR_BIT(pSPIx->CR1,SPI_CR1_CPHA_MASK);
-          break;
-     case SPI_CPHA_HIGH:
-          SET_BIT(pSPIx->CR1,SPI_CR1_CPHA_MASK);
-          break;
-     default:
-          return E_INVALID_PARAMETER;
-          break;
-     }
-
-     /* 6. FirstBit */
-     switch (pSPI_Config->SPI_FirstBit)
-     {
-     case SPI_FIRSTBIT_MSB:
-          CLEAR_BIT(pSPIx->CR1,SPI_CR1_LSBFIRST_MASK);
-          break;
-     case SPI_FIRSTBIT_LSB:
-          SET_BIT(pSPIx->CR1,SPI_CR1_LSBFIRST_MASK);
-          break;
-     default:
-          return E_INVALID_PARAMETER;
-          break;
-     }
-     s_SPI_Config.SPI_FirstBit =pSPI_Config->SPI_FirstBit;
-
-     /* 7 . Data frame format */
-     switch (pSPI_Config->SPI_DataSize)
-     {
-     case SPI_DS_8BITS:
-          CLEAR_BIT(pSPIx->CR1,SPI_CR1_DFF_MASK);
-          break;
-     case SPI_DS_16BITS:
-          SET_BIT(pSPIx->CR1,SPI_CR1_DFF_MASK);
-          break;
-     default:
-          return E_INVALID_PARAMETER;
-          break;
-     }
-     s_SPI_Config.SPI_DataSize =pSPI_Config->SPI_DataSize;
-
-     /* 8 .  Software slave management */
-     // tempreg |= SPI_CR1_SSM(0x01 & pSPI_Config->SPI_SSM);
-     pSPIx->CR1 |= SPI_CR1_SSM_MASK;
-
-     return E_OK;
-}
 
 // static void spi_txe_interrupt_handle(SPI_Handle_t *pSPIhandle)
 // {
@@ -254,9 +151,101 @@ LT_status_t SPI_Init(SPI_Handle_t *pSPIhandle)
 {
      LT_status_t retVal = E_OK;
 
+     (void) SPI_PeriClockControl(pSPIhandle->pSPIx, ENABLE);
      (void) SPI_PeripheralControl(pSPIhandle->pSPIx, DISABLE);
 
-     retVal = SPI_Configuration(pSPIhandle->pSPIx, &pSPIhandle->SPI_Config);
+     /* 1. Baud rate control */
+     MODIFY_REG(pSPIhandle->pSPIx->CR1,SPI_CR1_BR_MASK,  pSPIhandle->SPI_Config.SPI_SclkSpeed);
+
+     /* 2. SPI_CPOL */
+     switch (pSPIhandle->SPI_Config.SPI_CPOL)
+     {
+     case SPI_CPOL_LOW:
+          CLEAR_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_CPOL_MASK);
+          break;
+     case SPI_CPOL_HIGH:
+          SET_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_CPOL_MASK);
+          break;
+     default:
+          return E_INVALID_PARAMETER;
+          break;
+     }
+
+     /* 3. SPI_CPHA */
+     switch (pSPIhandle->SPI_Config.SPI_CPHA)
+     {
+     case SPI_CPHA_LOW:
+          CLEAR_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_CPHA_MASK);
+          break;
+     case SPI_CPHA_HIGH:
+          SET_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_CPHA_MASK);
+          break;
+     default:
+          return E_INVALID_PARAMETER;
+          break;
+     }
+
+     /* 4. Select mode */
+     switch (pSPIhandle->SPI_Config.SPI_DeviceMode)
+     {
+     case SPI_SLAVE_MODE:
+          CLEAR_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_MSTR_MASK);
+          break;
+     case SPI_MASTER_MODE:
+          SET_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_MSTR_MASK);
+          /* 6.  Software slave management */
+          // tempreg |= SPI_CR1_SSM(0x01 & pSPIhandle->SPI_Config.SPI_SSM);
+          pSPIhandle->pSPIx->CR1 |= SPI_CR1_SSM_MASK;
+          pSPIhandle->pSPIx->CR1 |= SPI_CR1_SSI_MASK;
+          break;
+     default:
+          return E_INVALID_PARAMETER;
+     }
+
+     /* 5. transmission mode*/
+     switch (pSPIhandle->SPI_Config.SPI_BusConfig)
+     {
+          case SPI_Full_Duplex_MODE:
+          case SPI_Simplex_Tx_MODE:
+               CLEAR_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_BIDIMODE_MASK);
+               break;
+          case SPI_Simplex_Rx_MODE:
+               SET_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_RXONLY_MASK);
+               break;
+          default:
+               return E_INVALID_PARAMETER;
+     }
+     s_SPI_Config.SPI_BusConfig =pSPIhandle->SPI_Config.SPI_BusConfig;
+
+     /* 7. FirstBit */
+     switch (pSPIhandle->SPI_Config.SPI_FirstBit)
+     {
+     case SPI_FIRSTBIT_MSB:
+          CLEAR_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_LSBFIRST_MASK);
+          break;
+     case SPI_FIRSTBIT_LSB:
+          SET_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_LSBFIRST_MASK);
+          break;
+     default:
+          return E_INVALID_PARAMETER;
+          break;
+     }
+     s_SPI_Config.SPI_FirstBit =pSPIhandle->SPI_Config.SPI_FirstBit;
+
+     /* 8 . Data frame format */
+     switch (pSPIhandle->SPI_Config.SPI_DataSize)
+     {
+     case SPI_DS_8BITS:
+          CLEAR_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_DFF_MASK);
+          break;
+     case SPI_DS_16BITS:
+          SET_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_DFF_MASK);
+          break;
+     default:
+          return E_INVALID_PARAMETER;
+          break;
+     }
+     s_SPI_Config.SPI_DataSize =pSPIhandle->SPI_Config.SPI_DataSize;
 
      return retVal;
 }
@@ -285,11 +274,11 @@ void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi)
 {
      if (EnOrDi == ENABLE)
      {
-          pSPIx->CR1 |= SPI_CR1_SPE_MASK;
+          SET_BIT(pSPIx->CR1, SPI_CR1_SPE_MASK);
      }
      else
      {
-          pSPIx->CR1 &= ~SPI_CR1_SPE_MASK;
+          CLEAR_BIT(pSPIx->CR1, SPI_CR1_SPE_MASK);
      }
 }
 
@@ -350,10 +339,11 @@ LT_status_t SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t len)
      LT_status_t retVal = E_OK;
      uint8_t check = 1;
 
-     if (READ_BIT(pSPIx->CR1,SPI_CR1_SPE_MASK))
+     if (!(READ_BIT(pSPIx->CR1,SPI_CR1_SPE_MASK)))
      {
           (void) SPI_PeripheralControl(pSPIx, ENABLE);
      }
+
 
      while ((len > 0) && (1 == check))
      {
@@ -382,6 +372,9 @@ LT_status_t SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t len)
                break;
           }
      }
+     while (SPI_GetFlagStatus(pSPIx, SPI_TXE_FLAG) == FLAG_RESET);
+
+     (void) SPI_PeripheralControl(pSPIx, DISABLE);
 
      return retVal;
 }

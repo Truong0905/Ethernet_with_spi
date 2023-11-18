@@ -108,15 +108,18 @@ void GPIO_Init(GPIO_Handle_t *pGPIOhandle)
 {
      GPIO_PeriClockControl(pGPIOhandle->pGPIOx, ENABLE);
 
-     uint32_t temp = 0;                                                // Biến tạm thời
-                                                                       // 1. Config mode of gpio pin
-     if (pGPIOhandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ANALOG) // Nhỏ hơn hoặc bằng 3 là non-interrupt mode
+     uint32_t temp = 0;
+     uint32_t pos = 2 * (pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber);
+
+     /* 1. Config mode of gpio pin */
+
+     if (pGPIOhandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ANALOG)
      {
-          temp = (pGPIOhandle->GPIO_PinConfig.GPIO_PinMode << (2 * (pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber)));
-          // Xác định xem pin thuộc mode gì và nằm ở vị trí pin bao nhiêu << nhân 2 vì mỗi pin có 2 bit điều khiển
-          pGPIOhandle->pGPIOx->MODER &= ~(0x03 << pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber); // clear 2 bit cần setting trước khi setting
+          temp = (pGPIOhandle->GPIO_PinConfig.GPIO_PinMode << pos );
+
+          pGPIOhandle->pGPIOx->MODER &= ~(0x03 << pos);
+
           pGPIOhandle->pGPIOx->MODER |= temp;
-          // Truy cập vào địa chỉ GPIO cần setup -> Truy cập đến địa chỉ thanh ghi setup mode
      }
      else
      {
@@ -151,21 +154,29 @@ void GPIO_Init(GPIO_Handle_t *pGPIOhandle)
           // 3. enable the EXTI interrupt delivery using IMR  ( Interrupt mask register )
           EXTI->IMR |= (1 << (pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber));
      }
+
      temp = 0;
      // 2. config the speed
-     temp = (pGPIOhandle->GPIO_PinConfig.GPIO_PinSpeed << (2 * (pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber)));
-     pGPIOhandle->pGPIOx->OSPEEDR &= ~(0x03 << pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber); // clear 2 bit cần setting trước khi setting
+     temp = (pGPIOhandle->GPIO_PinConfig.GPIO_PinSpeed << pos);
+     pGPIOhandle->pGPIOx->OSPEEDR &= ~(0x03 << pos); // clear 2 bit cần setting trước khi setting
      pGPIOhandle->pGPIOx->OSPEEDR |= temp;
+
      temp = 0;
      // 3. config the pull up or the pull down settings
-     temp = (pGPIOhandle->GPIO_PinConfig.GPIO_PinPuPdControl << (2 * (pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber)));
-     pGPIOhandle->pGPIOx->PUPDR &= ~(0x03 << pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber); // clear 2 bit cần setting trước khi setting
+     temp = (pGPIOhandle->GPIO_PinConfig.GPIO_PinPuPdControl << pos);
+     pGPIOhandle->pGPIOx->PUPDR &= ~(0x03 << pos); // clear 2 bit cần setting trước khi setting
      pGPIOhandle->pGPIOx->PUPDR |= temp;
-     temp = 0;
-     // 4. config out put type
-     temp = (pGPIOhandle->GPIO_PinConfig.GPIO_PinOPType << (pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber));
-     pGPIOhandle->pGPIOx->OTYPER &= ~(0x01 << pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber); // clear 2 bit cần setting trước khi setting
-     pGPIOhandle->pGPIOx->OTYPER |= temp;
+
+     if (GPIO_MODE_OUT == pGPIOhandle->GPIO_PinConfig.GPIO_PinMode)
+     {
+          temp = 0;
+          // 4. config out put type
+          temp = (pGPIOhandle->GPIO_PinConfig.GPIO_PinOPType << (pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber));
+          pGPIOhandle->pGPIOx->OTYPER &= ~(0x01 << pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber); // clear 2 bit cần setting trước khi setting
+          pGPIOhandle->pGPIOx->OTYPER |= temp;
+          GPIO_WriteToOutputPin(pGPIOhandle->pGPIOx, pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber, pGPIOhandle->GPIO_PinConfig.GPIO_PinOPStateInit);
+     }
+
      temp = 0;
      // 5. config the alt functionality
      if (pGPIOhandle->GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_ALTFN)
@@ -173,9 +184,9 @@ void GPIO_Init(GPIO_Handle_t *pGPIOhandle)
           uint8_t temp1, temp2;
           temp1 = pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber / 8; // Xác định xem nằm ở GPIO alternate function low OR highh register . Chia lấy phần nguyên
           temp2 = pGPIOhandle->GPIO_PinConfig.GPIO_PinNumber % 8; // Xác định xem thuộc bit bao nhiêu của GPIO alternate function low/highh register . Chia lấy phần dư
+
           pGPIOhandle->pGPIOx->AFR[temp1] &= ~(0xF << (4 * temp2));
           pGPIOhandle->pGPIOx->AFR[temp1] |= pGPIOhandle->GPIO_PinConfig.GPIO_PinAltFunMode << (4 * temp2);
-          // Do mỗi pin cần 4 bit điều khiển
      }
 };
 

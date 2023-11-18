@@ -226,13 +226,13 @@ typedef enum
 typedef enum
 {
     SPI_DIV_2 = 0u,
-    SPI_DIV_4 = 1u,
-    SPI_DIV_8 = 2u,
-    SPI_DIV_16 = 3u,
-    SPI_DIV_32 = 4u,
-    SPI_DIV_64 = 5u,
-    SPI_DIV_128 = 6u,
-    SPI_DIV_256 = 7u,
+    SPI_DIV_4 = 0x08,
+    SPI_DIV_8 = 0x10,
+    SPI_DIV_16 = 0x18,
+    SPI_DIV_32 = 0x20,
+    SPI_DIV_64 = 0x28,
+    SPI_DIV_128 = 0x30,
+    SPI_DIV_256 = 0x38,
 }SPI_SclkSpeed_t;
 
 
