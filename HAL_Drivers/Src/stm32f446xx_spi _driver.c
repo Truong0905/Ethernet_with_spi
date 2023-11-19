@@ -196,7 +196,8 @@ LT_status_t SPI_Init(SPI_Handle_t *pSPIhandle)
           /* 6.  Software slave management */
           // tempreg |= SPI_CR1_SSM(0x01 & pSPIhandle->SPI_Config.SPI_SSM);
           pSPIhandle->pSPIx->CR1 |= SPI_CR1_SSM_MASK;
-          pSPIhandle->pSPIx->CR1 |= SPI_CR1_SSI_MASK;
+          // pSPIhandle->pSPIx->CR1 |= SPI_CR1_SSI_MASK;
+          pSPIhandle->pSPIx->CR2 |= 0x04;
           break;
      default:
           return E_INVALID_PARAMETER;
@@ -337,7 +338,7 @@ uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t FlagName)
 LT_status_t SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t len)
 {
      LT_status_t retVal = E_OK;
-     uint8_t check = 1;
+     uint32_t ovr_flag = 0;
 
      if (!(READ_BIT(pSPIx->CR1,SPI_CR1_SPE_MASK)))
      {
@@ -345,36 +346,49 @@ LT_status_t SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t len)
      }
 
 
-     while ((len > 0) && (1 == check))
+     switch (s_SPI_Config.SPI_DataSize)
      {
-          // 1. Đợi cho tới khi cờ TXE = 1 có nghĩa là Tx buffer đã trống
-          while (SPI_GetFlagStatus(pSPIx, SPI_TXE_FLAG) == FLAG_RESET);
-
-          switch (s_SPI_Config.SPI_DataSize)
+     case SPI_DS_8BITS:
+     {
+          while (len > 0)
           {
-          case SPI_DS_8BITS:
-          {
-               pSPIx->DR = *pTxBuffer;
+               //  Đợi cho tới khi cờ TXE = 1 có nghĩa là Tx buffer đã trống
+               while (SPI_GetFlagStatus(pSPIx, SPI_TXE_FLAG) == FLAG_RESET);
+               *((__IO uint8_t *)&pSPIx->DR) = *pTxBuffer;
                len--;
                pTxBuffer++;
-               break;
           }
-          case SPI_DS_16BITS:
+          break;
+     }
+     case SPI_DS_16BITS:
+     {
+          while (len > 0)
           {
+               //  Đợi cho tới khi cờ TXE = 1 có nghĩa là Tx buffer đã trống
+               while (SPI_GetFlagStatus(pSPIx, SPI_TXE_FLAG) == FLAG_RESET);
                pSPIx->DR = *((uint16_t *)pTxBuffer);
                len = len - 2;
                (uint16_t *)pTxBuffer++;
-               break;
           }
-          default:
-               retVal = E_NOT_INITIALIZED;
-               check = 0;
-               break;
-          }
+          break;
      }
-     while (SPI_GetFlagStatus(pSPIx, SPI_TXE_FLAG) == FLAG_RESET);
+     default:
+          retVal = E_NOT_INITIALIZED;
+          break;
+     }
 
-     (void) SPI_PeripheralControl(pSPIx, DISABLE);
+
+     if (E_OK == retVal)
+     {
+          /* Check the end of the transaction */
+          while (SPI_GetFlagStatus(pSPIx, SPI_BSY_FLAG) == FLAG_SET);
+
+          /* Clear overrun flag in 2 Lines communication mode because received is not read */
+          ovr_flag = pSPIx->DR;
+          ovr_flag = pSPIx->SR;
+     }
+
+     (void) ovr_flag;
 
      return retVal;
 }
