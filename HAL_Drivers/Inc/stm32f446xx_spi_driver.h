@@ -16,45 +16,6 @@
  * Definitions
  ******************************************************************************/
 
-
-/*
- *   @SPI_SSM
- * chọn slave theo phần mềm hoặc không
- */
-#define SPI_SSM_EN 1
-#define SPI_SSM_DI 0
-
-/*
- * LSBFIRST
- */
-#define SPI_LSBFIRST_LSB 1
-#define SPI_LSBFIRST_MSB 0
-
-// Các macros dùng trong ngắt của SPI
-#define SPI_READY 0
-#define SPI_BUSY_IN_RX 1
-#define SPI_BUSY_IN_TX 2
-
-/**
- * @brief possible SPI application events
- *
- */
-#define SPI_EVENT_TX_CMPLT 1
-#define SPI_EVENT_RX_CMPLT 2
-#define SPI_EVENT_OVR_ERR 3
-#define SPI_EVENT_CRC__ERR 4
-
-// Các cờ thông báo trong SPI
-#define SPI_TXE_FLAG (1 << SPI_SR_TXE)
-#define SPI_RXE_FLAG (1 << SPI_SR_RXNE)
-#define SPI_CHSIDE_FLAG (1 << SPI_SR_CHSIDE)
-#define SPI_UDR_FLAG (1 << SPI_SR_UDR)
-#define SPI_CRCERR_FLAG (1 << SPI_SR_CRCERR)
-#define SPI_SR_MODF_FLAG (1 << SPI_SR_MODF)
-#define SPI_OVR_FLAG (1 << SPI_SR_OVR)
-#define SPI_BSY_FLAG (1 << SPI_SR_BSY)
-#define SPI_FRE_FLAG (1 << SPI_SR_FRE)
-
  /********************************** SHIFL-MASK-MACRO  ********************************************/
 
 
@@ -206,6 +167,33 @@
 
 /**************/
 
+
+
+/*********************************FLAGS***********************************/
+
+// Các macros dùng trong ngắt của SPI
+
+
+/**
+ * @brief possible SPI application events
+ *
+ */
+#define SPI_EVENT_TX_CMPLT 1
+#define SPI_EVENT_RX_CMPLT 2
+#define SPI_EVENT_OVR_ERR 3
+#define SPI_EVENT_CRC_ERR 4
+
+// Các cờ thông báo trong SPI
+#define SPI_TXE_FLAG (1 << SPI_SR_TXE)
+#define SPI_RXE_FLAG (1 << SPI_SR_RXNE)
+#define SPI_CHSIDE_FLAG (1 << SPI_SR_CHSIDE)
+#define SPI_UDR_FLAG (1 << SPI_SR_UDR)
+#define SPI_CRCERR_FLAG (1 << SPI_SR_CRCERR)
+#define SPI_SR_MODF_FLAG (1 << SPI_SR_MODF)
+#define SPI_OVR_FLAG (1 << SPI_SR_OVR)
+#define SPI_BSY_FLAG (1 << SPI_SR_BSY)
+#define SPI_FRE_FLAG (1 << SPI_SR_FRE)
+
 /*******************************************************************************
  * Struct, enum, union
  ******************************************************************************/
@@ -290,11 +278,31 @@ typedef struct
 
 } SPI_Config_type;
 
+typedef enum
+{
+    SPI_READY_IN_TX = 0u,
+    SPI_BUSY_IN_TX = 1u,
+}SPI_TxState_t;
 
+typedef enum
+{
+    SPI_READY_IN_RX = 0u,
+    SPI_BUSY_IN_RX = 1u,
+}SPI_RxState_t;
 
+typedef enum
+{
+    SPI_1 = 0u,
+    SPI_2 = 1u,
+    SPI_COUT = 2U,
+}SPI_Selection_t;
 
+typedef void (*pSPI_RxCallBack)(uint8_t AppEv);
+
+typedef void (*pSPI_TxCallBack)(uint8_t AppEv);
 typedef struct
 {
+    SPI_Selection_t select;
     /* data */
     SPI_RegDef_t *pSPIx;     // Chứa địa chỉ của SPIx
     SPI_Config_type SPI_Config; // Chứa config settings cuar SPI
@@ -304,9 +312,14 @@ typedef struct
     uint8_t *pRxBuffer; // Dùng lưu địa chỉ của Rx buffer < Địa chỉ nơi lưu trữ dữ liệu muốn nhận  về >
     uint32_t TxLen;     // Độ dài TxBuffer
     uint32_t RxLen;     // Độ dài  Rx buffer
-    uint8_t TxState;
-    uint8_t RxState;
+    __IO SPI_TxState_t TxState;
+    __IO SPI_RxState_t RxState;
+    pSPI_RxCallBack pRxCallBackFunction;
+    pSPI_TxCallBack pTxCallBackFunction;
 } SPI_Handle_t;
+
+
+
 
 /*******************************************************************************
  * Gloabal variables
@@ -327,22 +340,16 @@ typedef struct
 
 LT_status_t SPI_Init(SPI_Handle_t *pSPIhandle);
 
-
 void SPI_Deinit(SPI_RegDef_t *pSPIx);
 
+LT_status_t SPI_SendData(SPI_Handle_t *const pSPIhandle, const uint8_t *pTxBuffer, uint32_t len);
 
-LT_status_t SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t len);
 // void SPi_ReciveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t len); // Tương tự API gửi
 
 // uint8_t SPI_SendDataIT(SPI_Handle_t *pSPIhandle, uint8_t *pTxBuffer, uint32_t len);
-// uint8_t SPi_ReciveDataIT(SPI_Handle_t *pSPIhandle, uint8_t *pRxBuffer, uint32_t len);
+LT_status_t SPi_ReciveDataIT(SPI_Handle_t * pSPIhandle, uint8_t * const pRxBuffer, const uint32_t len);
 
-
-
-// void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnorDi);      // khởi tạo ngắt
-// void SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t IRQPriority); // Xét mức ưu tiên ngắt
-// void SPI_IRQHandling(SPI_Handle_t *pSPIhandle);                      // Trình xử lý ngắt
-
+void SPI_IRQHandling(SPI_Handle_t *pSPIhandle);                      // Trình xử lý ngắt
 
 void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
 
@@ -355,17 +362,6 @@ void SPI_SSOEControlBit(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
 
 uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t FlagName);
 
-// void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx);
-
-// void SPI_CloseTransmission(SPI_Handle_t *pSPIhandle);
-
-// void SPI_CloseReception(SPI_Handle_t *pSPIhandle);
-
-// /**
-//  * @brief Application callback
-//  *
-//  */
-// void SPI_ApplicationCallback(SPI_Handle_t *pSPIhandle, uint8_t AppEv);
 
 /*******************************************************************************
  * Static Functions

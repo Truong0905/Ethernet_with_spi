@@ -54,6 +54,7 @@ typedef enum
 	E_OUT_OF_RANGE = 3U,
 	E_NOT_FOUND = 4u,
 	E_NOT_INITIALIZED = 5u,
+	E_BUSY = 6u,
 }LT_status_t;
 
 /*************************************END*************************************************************************/

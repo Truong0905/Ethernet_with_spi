@@ -69,7 +69,7 @@ int main(void)
         GPIO_WriteToOutputPin (GPIOA, GPIO_PIN_NO_15, GPIO_PIN_RESET);
         (void) SPI_PeripheralControl(SPI2, ENABLE);
 
-         status = SPI_SendData(xSPI.pSPIx, data,  len);
+         status = SPI_SendData(&xSPI, data,  len);
 
         (void) SPI_PeripheralControl(SPI2, DISABLE);
         GPIO_WriteToOutputPin (GPIOA, GPIO_PIN_NO_15, GPIO_PIN_SET);
@@ -118,6 +118,9 @@ static LT_status_t InitSPI(void)
     xSPI.SPI_Config.SPI_CPOL = SPI_CPOL_HIGH;
     xSPI.SPI_Config.SPI_DataSize = SPI_DS_8BITS;
     xSPI.SPI_Config.SPI_SclkSpeed = SPI_DIV_4;
+    xSPI.pRxCallBackFunction = NULL ;
+    xSPI.pTxCallBackFunction = NULL ;
+    xSPI.select = SPI_2;
 
     retVal = SPI_Init(&xSPI);
 
