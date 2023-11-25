@@ -167,6 +167,50 @@
 
 /**************/
 
+/********* SPI control register 2 (SPI_CR2) ***********************/
+
+#define SPI_CR2_RXNEIE_MASK  (0x40)
+#define SPI_CR2_RXNEIE_SHIFT  (6u)
+/*! Bit 6 RXNEIE: RX buffer not empty interrupt enable
+    0: RXNE interrupt masked
+    1: RXNE interrupt not masked. Used to generate an interrupt request when the RXNE flag is
+    set.
+**/
+#define SPI_CR2_RXNEIE(x)  (((uint32_t)(((uint32_t)(x))<< SPI_CR2_RXNEIE_SHIFT)) & SPI_CR2_RXNEIE_MASK)
+
+/**************/
+
+#define SPI_CR2_TXEIE_MASK  (0x80)
+#define SPI_CR2_TXEIE_SHIFT  (7u)
+/*! Bit 7 TXEIE: Tx buffer empty interrupt enable
+    0: TXE interrupt masked
+    1: TXE interrupt not masked. Used to generate an interrupt request when the TXE flag is set.
+**/
+#define SPI_CR2_TXEIE(x)  (((uint32_t)(((uint32_t)(x))<< SPI_CR2_TXEIE_SHIFT)) & SPI_CR2_TXEIE_MASK)
+
+/**************/
+
+/********* SPI status register (SPI_SR) ***********************/
+
+#define SPI_SR_RXNE_MASK  (0x01)
+#define SPI_SR_RXNE_SHIFT  (0u)
+/*! Bit 0 RXNE: Receive buffer not empty
+    0: Rx buffer empty
+    1: Rx buffer not empty
+**/
+#define SPI_SR_RXNE(x)  (((uint32_t)(((uint32_t)(x))<< SPI_SR_RXNE_SHIFT)) & SPI_SR_RXNE_MASK)
+
+/**************/
+
+#define SPI_SR_TXE_MASK  (0x02)
+#define SPI_SR_TXE_SHIFT  (1u)
+/*! Bit 1 TXE: Transmit buffer empty
+    0: Tx buffer not empty
+    1: Tx buffer empty
+**/
+#define SPI_SR_TXE(x)  (((uint32_t)(((uint32_t)(x))<< SPI_SR_TXE_SHIFT)) & SPI_SR_TXE_MASK)
+
+/**************/
 
 
 /*********************************FLAGS***********************************/
@@ -184,7 +228,7 @@
 #define SPI_EVENT_CRC_ERR 4
 
 // Các cờ thông báo trong SPI
-#define SPI_TXE_FLAG (1 << SPI_SR_TXE)
+#define SPI_TXE_FLAG (1 << SPI_SR_TXE_SHIFT)
 #define SPI_RXE_FLAG (1 << SPI_SR_RXNE)
 #define SPI_CHSIDE_FLAG (1 << SPI_SR_CHSIDE)
 #define SPI_UDR_FLAG (1 << SPI_SR_UDR)

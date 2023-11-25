@@ -142,7 +142,7 @@ static void spi_ovr_err_interrupt_handle(SPI_Handle_t *pSPIhandle)
 static void SPI_CloseTransmission(SPI_Handle_t *pSPIhandle)
 {
      // Nếu Txlen bằng 0 , đã truyền xong và đóng lại
-     pSPIhandle->pSPIx->CR2 &= ~(1 << SPI_CR2_TXEIE); // nhằm ngăn ngừa  interrupt từ txe flag
+     SET_BIT( pSPIhandle->pSPIx->CR2, SPI_CR2_TXEIE_MASK); // nhằm ngăn ngừa  interrupt từ txe flag
      pSPIhandle->pTxBuffer = NULL;
      pSPIhandle->TxLen = 0;
      pSPIhandle->TxState = SPI_READY_IN_TX;
@@ -154,7 +154,7 @@ static void SPI_CloseTransmission(SPI_Handle_t *pSPIhandle)
 static void SPI_CloseReception(SPI_Handle_t *pSPIhandle)
 {
      // Nếu Rxlen bằng 0 , đã nhận xong và đóng lại
-     pSPIhandle->pSPIx->CR2 &= ~(1 << SPI_CR2_RXNEIE); // nhằm ngăn ngừa  interrupt từ rxe flag
+     CLEAR_BIT(pSPIhandle->pSPIx->CR2, SPI_CR2_RXNEIE_MASK); // nhằm ngăn ngừa  interrupt từ rxe flag
      pSPIhandle->pRxBuffer = NULL;
      pSPIhandle->RxLen = 0;
      pSPIhandle->RxState = SPI_READY_IN_RX;
@@ -387,7 +387,14 @@ LT_status_t SPI_SendData(SPI_Handle_t *const pSPIhandle, const uint8_t *pTxBuffe
      LT_status_t retVal = E_OK;
      uint32_t ovr_flag = 0;
 
-     pSPIhandle->TxState = SPI_BUSY_IN_TX;
+     if  (SPI_READY_IN_TX != pSPIhandle->TxState)
+     {
+          return E_BUSY;
+     }
+     else
+     {
+          pSPIhandle->TxState = SPI_BUSY_IN_TX;
+     }
 
      if (!(READ_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_SPE_MASK)))
      {
@@ -436,8 +443,8 @@ LT_status_t SPI_SendData(SPI_Handle_t *const pSPIhandle, const uint8_t *pTxBuffe
           ovr_flag = pSPIhandle->pSPIx->DR;
           ovr_flag = pSPIhandle->pSPIx->SR;
      }
-     pSPIhandle->TxState = SPI_READY_IN_TX;
 
+     pSPIhandle->TxState = SPI_READY_IN_TX;
 
      (void) ovr_flag;
 
@@ -447,6 +454,7 @@ LT_status_t SPI_SendData(SPI_Handle_t *const pSPIhandle, const uint8_t *pTxBuffe
 LT_status_t SPi_ReciveDataIT(SPI_Handle_t * pSPIhandle, uint8_t * const pRxBuffer, const uint32_t len)
 {
      LT_status_t retVal = E_OK;
+     uint32_t ovr_flag = 0;
 
 
      if (SPI_READY_IN_RX == pSPIhandle->RxState)
@@ -454,10 +462,15 @@ LT_status_t SPi_ReciveDataIT(SPI_Handle_t * pSPIhandle, uint8_t * const pRxBuffe
           // 1. Save RxBuffer address and len information in som global variables
           pSPIhandle->pRxBuffer = pRxBuffer;
           pSPIhandle->RxLen = len;
+
+          /* Clear overrun flag in 2 Lines communication mode because received is not read */
+          ovr_flag = pSPIhandle->pSPIx->DR;
+          ovr_flag = pSPIhandle->pSPIx->SR;
+
           // 2. Thông báo SPI này đang bận truyền và ko có code nào khác được tác động cho đến khi nhận xong
           pSPIhandle->RxState = SPI_BUSY_IN_RX;
           // 3. Bật bit RXNEIE trong SPI->CR2 là bit cho phép xảy ra ngắt khi cờ RXE ( SPI-> SR) được set có nghĩa Rxbuffer đã đầy  vã sẵn sàng truyền dữ liệu đi lưu trũ
-          pSPIhandle->pSPIx->CR2 |= (1 << SPI_CR2_RXNEIE);
+          SET_BIT(pSPIhandle->pSPIx->CR2,SPI_CR2_RXNEIE_MASK);
 
           if (!(READ_BIT(pSPIhandle->pSPIx->CR1,SPI_CR1_SPE_MASK)))
           {
@@ -469,17 +482,20 @@ LT_status_t SPi_ReciveDataIT(SPI_Handle_t * pSPIhandle, uint8_t * const pRxBuffe
           retVal = E_BUSY;
      }
 
+     (void) ovr_flag;
+
      return retVal;
 }
 
 void SPI_IRQHandling(SPI_Handle_t *pSPIhandle)
 {
-     uint8_t temp1, temp2;
+     uint32_t temp1, temp2;
+
+     temp1 = pSPIhandle->pSPIx->SR;
 
      // 1 . Check RXNE
-     temp1 = pSPIhandle->pSPIx->SR & (1 << SPI_SR_RXNE);
-     temp2 = pSPIhandle->pSPIx->CR2 & (1 << SPI_CR2_RXNEIE);
-     if (temp1 && temp2)
+     temp2 = READ_BIT(pSPIhandle->pSPIx->CR2 , SPI_CR2_RXNEIE_MASK);
+     if ((READ_BIT(temp1, SPI_SR_RXNE_MASK)) && temp2)
      {
           // handler RXNE
           spi_rxne_interrupt_handle(pSPIhandle);
@@ -488,9 +504,8 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIhandle)
      }
 
      // 2 . Check TXE
-     temp1 = pSPIhandle->pSPIx->SR & (1 << SPI_SR_TXE);
-     temp2 = pSPIhandle->pSPIx->CR2 & (1 << SPI_CR2_TXEIE);
-     if (temp1 && temp2)
+     temp2 = READ_BIT(pSPIhandle->pSPIx->CR2 , SPI_CR2_TXEIE_MASK);
+     if ((READ_BIT(temp1, SPI_SR_TXE_MASK)) && temp2)
      {
           // handler TXE
           spi_txe_interrupt_handle(pSPIhandle);

@@ -631,13 +631,9 @@ typedef struct
 #define SPI_CR2_SSOE 2
 #define SPI_CR2_FRF 4
 #define SPI_CR2_ERRIE 5
-#define SPI_CR2_RXNEIE 6
-#define SPI_CR2_TXEIE 7
 
 // Các bit trong  Thanh ghi  SPI_SR   ( status)
 
-#define SPI_SR_RXNE 0
-#define SPI_SR_TXE 1
 #define SPI_SR_CHSIDE 2
 #define SPI_SR_UDR 3
 #define SPI_SR_CRCERR 4
