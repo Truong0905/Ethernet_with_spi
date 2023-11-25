@@ -338,7 +338,8 @@ typedef enum
 {
     SPI_1 = 0u,
     SPI_2 = 1u,
-    SPI_COUT = 2U,
+    SPI_3 = 2u,
+    SPI_COUT = 3u,
 }SPI_Selection_t;
 
 typedef void (*pSPI_RxCallBack)(uint8_t AppEv);

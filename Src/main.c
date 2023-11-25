@@ -41,7 +41,7 @@ static void App_ReceivedData(uint8_t AppEv);
 
 void delay (void)
 {
-    for (uint32_t i = 0; i < 1000000; i ++);
+    for (uint32_t i = 0; i < 10000000; i ++);
 }
 
 int main(void)
@@ -49,7 +49,7 @@ int main(void)
 
     volatile  LT_status_t status = E_OK;
     uint8_t data[] = "Le Van Truong";
-    uint32_t len = strlen(data);
+    uint32_t len = strlen((const char *)data);
     int check = 0;
     status = InitClockSource();
     if (E_OK == status)
@@ -65,12 +65,11 @@ int main(void)
     if (E_OK != status)
         for(;;);
 
-    status =  SPi_ReciveDataIT(&s_hspi3, s_data, 13);
+    status =  SPi_ReciveDataIT(&s_hspi3, (uint8_t *)s_data, 13);
     (void) GPIO_IRQInterruptConfig(IRQ_NO_SPI3, ENABLE);
     /* Loop forever */
 	while (1)
     {
-         delay();
 
         GPIO_WriteToOutputPin (GPIOA, GPIO_PIN_NO_14, GPIO_PIN_RESET);
         (void) SPI_PeripheralControl(SPI2, ENABLE);
@@ -78,15 +77,17 @@ int main(void)
          status = SPI_SendData(&s_hpsi2, data,  len);
 
         (void) SPI_PeripheralControl(SPI2, DISABLE);
-        GPIO_WriteToOutputPin (GPIOA, GPIO_PIN_NO_14, GPIO_PIN_SET);
         while ((s_flag == FALSE));
-
+        GPIO_WriteToOutputPin (GPIOA, GPIO_PIN_NO_14, GPIO_PIN_SET);
         s_flag = FALSE;
-       check = memcmp(s_data, data, 13);
+       check = memcmp((uint8_t *)s_data, data, 13);
         if (0 == check)
         {
-        	memset(s_data, 0, 13);
-            status =  SPi_ReciveDataIT(&s_hspi3, s_data, 13);
+        	memset((uint8_t *)s_data, 0, 13);
+            status =  SPi_ReciveDataIT(&s_hspi3, (uint8_t *)s_data, 13);
+            GPIO_ToggleOutputPin(GPIOA, GPIO_PIN_NO_5);
+
+            delay();
         }
         else
         {
@@ -154,7 +155,7 @@ static LT_status_t InitSPI(void)
     s_hspi3.SPI_Config.SPI_SclkSpeed = SPI_DIV_4;
     s_hspi3.pRxCallBackFunction = App_ReceivedData ;
     s_hspi3.pTxCallBackFunction = NULL ;
-    s_hspi3.select = SPI_2;
+    s_hspi3.select = SPI_3;
 
     retVal = SPI_Init(&s_hpsi2);
     retVal = SPI_Init(&s_hspi3);
@@ -164,6 +165,7 @@ static LT_status_t InitSPI(void)
 
 static void InitGPIO(void)
 {
+    GPIO_Handle_t led;
     // GPIO_Handle_t GPIO_miso_spi2;
     GPIO_Handle_t GPIO_mosi_spi2;
     GPIO_Handle_t GPIO_sclk_spi2;
@@ -175,6 +177,16 @@ static void InitGPIO(void)
     GPIO_Handle_t GPIO_sclk_spi3;
     GPIO_Handle_t GPIO_nss_spi3;
 
+/*****************LED********************/
+    led.pGPIOx = GPIOA;
+    led.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_5;
+    led.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_OUT;
+    led.GPIO_PinConfig.GPIO_PinSpeed = GPIO_OP_SPEED_MEDIUM;
+    led.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUD ;
+    led.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP ;
+    led.GPIO_PinConfig.GPIO_PinOPStateInit =  GPIO_OP_STATE_ON;
+
+    GPIO_Init(&led);
 
 /************SPI2****************************************************/
     GPIO_sclk_spi2.pGPIOx = GPIOB;

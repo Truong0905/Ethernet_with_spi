@@ -25,14 +25,14 @@
 // Các hàm chỉ dùng trong mục này , ko cần gọi ra chương trình chính , để phucj vụ các trình xử lý ngắt
 static void spi_txe_interrupt_handle(SPI_Handle_t *pSPIhandle);
 static void spi_rxne_interrupt_handle(SPI_Handle_t *pSPIhandle);
-static void spi_ovr_err_interrupt_handle(SPI_Handle_t *pSPIhandle);
+// static void spi_ovr_err_interrupt_handle(SPI_Handle_t *pSPIhandle);
 
 static void SPI_PeriClockControl(SPI_RegDef_t *pSPIx, uint8_t EnorDi);
 
 static void SPI_CloseTransmission(SPI_Handle_t *pSPIhandle);
 static void SPI_CloseReception(SPI_Handle_t *pSPIhandle);
 
-static void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx);
+// static void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx);
 
 /*******************************************************************************
  * Global Funtions Prototypes
@@ -128,16 +128,16 @@ static void spi_rxne_interrupt_handle(SPI_Handle_t *pSPIhandle)
      }
 }
 
-static void spi_ovr_err_interrupt_handle(SPI_Handle_t *pSPIhandle)
-{
-     uint8_t temp; // Chỉ dùng để lúc debug thấy lỗi
-     // 1. Clear ovr flag
-     if (pSPIhandle->TxState != SPI_BUSY_IN_TX)
-     {
-          SPI_ClearOVRFlag(pSPIhandle->pSPIx);
-     }
-     (void)temp;
-}
+// static void spi_ovr_err_interrupt_handle(SPI_Handle_t *pSPIhandle)
+// {
+//      uint8_t temp; // Chỉ dùng để lúc debug thấy lỗi
+//      // 1. Clear ovr flag
+//      if (pSPIhandle->TxState != SPI_BUSY_IN_TX)
+//      {
+//           SPI_ClearOVRFlag(pSPIhandle->pSPIx);
+//      }
+//      (void)temp;
+// }
 
 static void SPI_CloseTransmission(SPI_Handle_t *pSPIhandle)
 {
@@ -163,13 +163,13 @@ static void SPI_CloseReception(SPI_Handle_t *pSPIhandle)
      RxCallback[pSPIhandle->select](SPI_EVENT_RX_CMPLT);
 }
 
-static void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx)
-{
-     uint8_t temp;
-     temp = pSPIx->DR;
-     temp = pSPIx->SR;
-     (void)temp;
-}
+// static void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx)
+// {
+//      uint8_t temp;
+//      temp = pSPIx->DR;
+//      temp = pSPIx->SR;
+//      (void)temp;
+// }
 
 /*******************************************************************************
  * Global Funtions
@@ -185,6 +185,9 @@ LT_status_t SPI_Init(SPI_Handle_t *pSPIhandle)
           /* code */
           break;
      case SPI_2:
+           /* code */
+          break;
+     case SPI_3:
            /* code */
           break;
      default:
@@ -492,40 +495,32 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIhandle)
      uint32_t temp1, temp2;
 
      temp1 = pSPIhandle->pSPIx->SR;
-
+     temp2 = pSPIhandle->pSPIx->CR2;
      // 1 . Check RXNE
-     temp2 = READ_BIT(pSPIhandle->pSPIx->CR2 , SPI_CR2_RXNEIE_MASK);
-     if ((READ_BIT(temp1, SPI_SR_RXNE_MASK)) && temp2)
+     if ((READ_BIT(temp1, SPI_SR_RXNE_MASK)) && (READ_BIT(temp2, SPI_CR2_RXNEIE_MASK)))
      {
           // handler RXNE
           spi_rxne_interrupt_handle(pSPIhandle);
-
-          return;
      }
 
      // 2 . Check TXE
-     temp2 = READ_BIT(pSPIhandle->pSPIx->CR2 , SPI_CR2_TXEIE_MASK);
-     if ((READ_BIT(temp1, SPI_SR_TXE_MASK)) && temp2)
+     if ((READ_BIT(temp1, SPI_SR_TXE_MASK)) && (READ_BIT(temp2, SPI_CR2_TXEIE_MASK)))
      {
           // handler TXE
           spi_txe_interrupt_handle(pSPIhandle);
-
-          return;
      }
 
      // 3 . Check CRC
      // 4 . Check TI farme
      // 5. Overrun erorr - Xảy ra khi cờ RXNE được set nhưng vẫn có data từ ngoài truyền vào => loại bỏ dữ liệu mới đến
      //  Phải gửi lại data vì dât kia đã bị loại bỏ chưa kịp đọc
-     temp1 = pSPIhandle->pSPIx->SR & (1 << SPI_SR_OVR);
-     temp2 = pSPIhandle->pSPIx->CR2 & (1 << SPI_CR2_ERRIE);
-     if (temp1 && temp2)
-     {
-          // handler ovr erorr
-          spi_ovr_err_interrupt_handle(pSPIhandle);
-
-          return;
-     }
+     // temp1 = pSPIhandle->pSPIx->SR & (1 << SPI_SR_OVR);
+     // temp2 = pSPIhandle->pSPIx->CR2 & (1 << SPI_CR2_ERRIE);
+     // if (temp1 && temp2)
+     // {
+     //      // handler ovr erorr
+     //      spi_ovr_err_interrupt_handle(pSPIhandle);
+     // }
 }
 
 
